@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plz_Icon__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( ISPICKVAL( Plz_Status__c , &apos;Synchronized&apos;) , &apos;utility:success&apos;,
+IF( ISPICKVAL( Plz_Status__c , &apos;Not Synchronized&apos;) , &apos;utility:priority&apos;,
+IF( ISPICKVAL( Plz_Status__c , &apos;Not Yet Analyzed&apos;) , &apos;utility:warning&apos;,
+&apos;&apos;
+)))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Icon</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
