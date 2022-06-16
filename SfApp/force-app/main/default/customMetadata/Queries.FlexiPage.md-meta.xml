@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>FlexiPage</label>
+    <protected>false</protected>
+    <values>
+        <field>ObjectLabel__c</field>
+        <value xsi:type="xsd:string">FlexiPages</value>
+    </values>
+    <values>
+        <field>ObjectName__c</field>
+        <value xsi:type="xsd:string">FlexiPage</value>
+    </values>
+    <values>
+        <field>QueryText__c</field>
+        <value xsi:type="xsd:string">SELECT Id, DeveloperName FROM FlexiPage</value>
+    </values>
+</CustomMetadata>
