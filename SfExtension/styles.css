@@ -1,3 +1,50 @@
+
+.deployment_helper_parent{
+    overflow: hidden;
+    position: relative;
+}
+
 .deployment_helper {
-    font-size: 12px;padding: 1rem;border: solid black;position: absolute;z-index: 1;right: 0;
+    position: absolute;
+    top: 7%;
+    left: 70%;
+     z-index: 10000;
+}
+.deployment_helper div {
+  display: inline;
+    margin-left: 10px;
+}
+.deployment_helper_button {
+    position: absolute;
+    top: 7%;
+    right: 10%;
+    z-index: 10000;
+}
+.popup {
+    display: none;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 130px;
+    background-color: darkgray;
+    color: #000;
+    text-align: center;
+    border-radius: 6px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: 20px;
+    left: -40%;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }
