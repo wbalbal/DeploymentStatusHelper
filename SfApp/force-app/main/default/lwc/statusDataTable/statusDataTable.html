@@ -1,0 +1,90 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 06-13-2022
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <div class="slds-box slds-theme--default">
+        <div class="slds-text-color_inverse slds-text-heading_large" style="padding:0.5rem;background:#16325c">        
+            Sync Status
+        </div>
+        <div style="width:200px; padding:0.5rem;">
+            <lightning-combobox name="filter"
+                                label="Status"
+                                value={selectedValue}
+                                variant="label-hidden"
+                                options={options}
+                                onchange={handleChange}
+                                placeholder="Select Industry to filter"></lightning-combobox>
+        </div>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0" onclick={sortRecs} name="Plz_type__c">
+                            Item Type
+                        </a>
+                    </th>
+                    <th class="" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0" onclick={sortRecs} name="Plz_Name__c">
+                            Name
+                        </a>
+                    </th>
+                    <th class="" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0" onclick={sortRecs} name="Plz_Status__c">
+                            Status
+                        </a>
+                    </th>
+                    <th class="" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0" onclick={sortRecs} name="Plz_Last_Time_Analyzed__c">
+                            Last Sync Date
+                        </a>
+                    </th>
+                    <!-- <th class="" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0" onclick={sortRecs} name="Type">
+                            Type
+                        </a>
+                    </th>
+                    <th class="" scope="col">
+                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0" onclick={sortRecs} name="Phone">
+                            Phone
+                        </a>
+                    </th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <template iterator:it={records}>
+                    <tr class="slds-hint-parent" key = {it.value.Id}>
+                        <td data-label="Account Name">
+                            <div class="slds-cell-wrap" title={it.value.Plz_type__c}>{it.value.type}</div>
+                        </td>
+                        <td data-label="Account Number">
+                            <div class="slds-cell-wrap">{it.value.Plz_Name__c}</div>
+                        </td>
+                        <td data-label="Industry">
+                            <div class="slds-cell-wrap">
+                                <lightning-icon 
+                                icon-name={it.value.Plz_Icon__c} 
+                                variant={it.value.Plz_flag__c}
+                                size="small">
+                                </lightning-icon>
+                                {it.value.Plz_Status__c}
+                            </div>
+                        </td>
+                        <td data-label="Rating">
+                            <div class="slds-cell-wrap">{it.value.Plz_Last_Time_Analyzed__c}</div>
+                        </td>
+                        <!-- <td data-label="Type">
+                            <div class="slds-cell-wrap">{it.value.Type}</div>
+                        </td>
+                        <td data-label="Phone">
+                            <div class="slds-cell-wrap">{it.value.Phone}</div>
+                        </td> -->
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</template>
