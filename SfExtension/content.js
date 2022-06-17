@@ -1,9 +1,9 @@
 let data = [{
-    'status':'SyncKawkaw',
-    'path':'path/path/path1',
+    'status':'NOT SYNCHRONISED',
+    'path':'path/path/path1path/path/kkkkkl',
     'componentName':'[data-component-id]',
     'lastDateSync':'15/06/22',
-    'diff':'blablablablablab lanlab labla blablabl ablanlablab labla blablab lanlablabl ablabl ablablan lab lablablabl abla blanlablabla blabl ablabl anla'
+    'diff':'blablab lablablab lanlab labla blablabl ablanlablab labla blablab lanlablabl ablabl ablablan lab lablablabl abla blanlablabla blabl ablabl anla'
 }]
 
 window.onload = () => {
@@ -13,32 +13,46 @@ window.onload = () => {
             let componentName = element.componentName;
             let componentItem = document.querySelectorAll(componentName);
             for( let componentItemsItem of componentItem ){
+
+                //Create HTML elements to inject
                 const InsertedDiv=document.createElement("div");
+                const InsertedDivForLastSyncDate =document.createElement("div");
                 const InsertedDivContainer=document.createElement("div");
                 const InsertedButton=document.createElement("div");
                 const divPopup=document.createElement("span");
-                InsertedButton.innerText="diff";
-                InsertedButton.name="diff";
-                InsertedButton.setAttribute("cmpName",componentName);
-                //InsertedButton:addEventListener("click",getdiff);
+                const InsertedPathButton=document.createElement("div");
+                const divPopupForPath =document.createElement("span");
+
+
+                //Set Button Title and Assign CSS Classes
+                InsertedButton.innerText="SEE_DIFF";
+                InsertedPathButton.innerText="CMP_PATH";
                 InsertedButton.classList.add("tooltip");
+                InsertedPathButton.classList.add("tooltip");
                 InsertedDivContainer.classList.add("deployment_helper");
-                InsertedDiv.appendChild(InsertedButton);
-                InsertedDiv.innerText=element.status;
-                InsertedDivContainer.appendChild(InsertedDiv);
-                componentItemsItem.appendChild(InsertedDivContainer);
                 componentItemsItem.classList.add("deployment_helper_parent");
-                InsertedDiv.parentNode.insertBefore(InsertedButton,InsertedDiv);
+                divPopupForPath.classList.add("tooltiptext");
                 divPopup.classList.add("tooltiptext");
+
+                //Set elements content
+                InsertedDiv.innerText=element.status;
+                InsertedDivForLastSyncDate.innerText=element.lastDateSync;
+                divPopupForPath.innerText=element.path;
                 divPopup.innerText=element.diff;
+
+                //Inject HTML to the Dom
+                InsertedDivContainer.appendChild(InsertedDiv);
+                InsertedDiv.appendChild(InsertedButton);
+                InsertedDiv.appendChild(InsertedPathButton);
+                InsertedDiv.appendChild(InsertedDivForLastSyncDate);
+                componentItemsItem.appendChild(InsertedDivContainer);
+                InsertedDiv.parentNode.insertBefore(InsertedButton,InsertedDiv);
+                InsertedDiv.parentNode.insertBefore(InsertedPathButton,InsertedDiv);
                 InsertedButton.appendChild(divPopup);
-                //componentItemsItem.parentNode.insertBefore(InsertedDiv,componentItemsItem);
+                InsertedPathButton.appendChild(divPopupForPath);
+
     }}}, "3000")
 
-}
-function getdiff(element){
-    let cmpName = element.getAttribute("cmpName");
-    console.log(cmpName);
 }
 
 
