@@ -19,7 +19,7 @@ export default class StatusDataTable extends LightningElement {
                 console.log(' result '+JSON.stringify(result));
                 this.queriesData = result;
                 this.error = undefined;
-                let opts = [];
+                let opts = [{label:'All', value:'All'}];
                 for(let key in result) {
                     opts.push({label:result[key].ObjectLabel__c, value:result[key].ObjectName__c});
                 }
