@@ -22,7 +22,7 @@
             <value>
                 <fullName>Not Yet Analyzed</fullName>
                 <default>false</default>
-                <label>Not Yet Analyzed</label>
+                <label>Not Analyzed Yet</label>
             </value>
         </valueSetDefinition>
     </valueSet>
