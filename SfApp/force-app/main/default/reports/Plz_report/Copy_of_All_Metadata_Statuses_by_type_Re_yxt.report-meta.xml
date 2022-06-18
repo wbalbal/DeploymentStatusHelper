@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Plz_Metadata_Status__c.Plz_Name__c</field>
+    </columns>
+    <columns>
+        <field>Plz_Metadata_Status__c.Plz_Status__c</field>
+    </columns>
+    <columns>
+        <field>Plz_Metadata_Status__c.Plz_Last_Time_Analyzed__c</field>
+    </columns>
+    <columns>
+        <field>Plz_Metadata_Status__c.Plz_type__c</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>Plz_Metadata_Status__c.Plz_Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Synchronized</value>
+        </criteriaItems>
+    </filter>
+    <format>Tabular</format>
+    <name>All Synced Metadata</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Plz_Metadata_Status__c</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Plz_Metadata_Status__c.Plz_Last_Time_Analyzed__c</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
