@@ -5,12 +5,22 @@
   "author": "Wail BALBAL",
   "bugs": "https://github.com/wbalbal/DeploymentStatusHelper/issues",
   "dependencies": {
+    "@oclif/core": "^1.9.0",
+    "@oclif/plugin-help": "^3.3.1",
+    "@salesforce/apex-node": "^0.13.0",
+    "@salesforce/command": "^5.1.2",
+    "@salesforce/core": "^3.20.1",
+    "@salesforce/kit": "^1.5.41",
+    "@salesforce/source-deploy-retrieve": "^6.0.3",
+    "@salesforce/source-tracking": "^2.0.0",
+    "chalk": "^4.1.2",
+    "got": "^11.8.3",
+    "jsforce": "2.0.0-beta.10",
+    "open": "^8.4.0",
+    "tslib": "^2",
     "@oclif/command": "^1",
     "@oclif/config": "^1",
-    "@oclif/errors": "^1",
-    "@salesforce/command": "^4",
-    "@salesforce/core": "^2",
-    "tslib": "^2"
+    "@oclif/errors": "^1"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
