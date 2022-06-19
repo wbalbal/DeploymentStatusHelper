@@ -7,74 +7,61 @@ export default class StatusDataTable extends LightningElement {
         sortedColumn;
         sortedDirection;
         selectedValue = 'All';
+        selectedPeriodValue = '10';
         options = [];
         queriesData;
         error;
     
         connectedCallback(){
-            console.log(' connected call back ');
-
             fetchQueries()
             .then(result => {
-                console.log(' result '+JSON.stringify(result));
                 this.queriesData = result;
                 this.error = undefined;
                 let opts = [{label:'All', value:'All'}];
                 for(let key in result) {
                     opts.push({label:result[key].ObjectLabel__c, value:result[key].ObjectName__c});
                 }
-
                 this.options = opts;
-               
-                console.log(' options '+JSON.stringify(this.options));
-                
-
             })
             .catch(error => {
                 this.error = error;
                 this.queriesData = undefined;
             })
         }
-        // get options() {
-        
-        // }
+        get periodOptions() {
+            return [
+                { label: 'Last 10 days', value: '10' },
+                { label: 'Last 20 days', value: '20' },
+                { label: 'Last month', value: '30' },
+                { label: 'Last 2 months', value: '60' },
+            ];
+        }
     
-        handleChange( event ) {
-    
+        handleChange( event ) {  
             this.selectedValue = event.detail.value;
             if ( this.selectedValue === 'All' )
                 this.records = this.initialRecords;
             else
-                this.filter();
-    
+                this.filter();   
         }
     
-        @wire( fetchMetaDataStatusRecord )  
-        wiredRecords( { error, data } ) {
-    
+        @wire( fetchMetaDataStatusRecord, {period: '10'})  
+        wiredRecords( { error, data } ) {   
             if (data) {
-                console.log(' dataa '+JSON.stringify(data));
                 this.records = data;
                 this.initialRecords = data;
                 this.error = undefined;
                 this.sortedColumn = "Plz_type__c";
                 this.sortRecs();
-    
-            } else if ( error ) {
-    
+            } else if ( error ) {   
                 this.error = error;
                 this.initialRecords = undefined;
-                this.records = undefined;
-    
-            }
-    
+                this.records = undefined;    
+            }    
         }  
     
-        sortRecs( event ) {
-    
-            let colName = event ? event.target.Plz_type__c : undefined;
-            console.log( 'Column Name is ' + colName );
-    
+        sortRecs( event ) {   
+            let colName = event ? event.target.Plz_type__c : undefined;    
             if ( this.sortedColumn === colName )
                 this.sortedDirection = ( this.sortedDirection === 'asc' ? 'desc' : 'asc' );
             else
@@ -96,38 +83,38 @@ export default class StatusDataTable extends LightningElement {
         }
     
         filter() {  
-               console.log('this.selectedValue '+this.selectedValue);
-               console.log('this.records '+JSON.stringify(this.records));
-            if ( this.selectedValue ) {  
-    
-                this.records = this.initialRecords;
-     
-                if ( this.records ) {
-    
+            if ( this.selectedValue ) {     
+                this.records = this.initialRecords;   
+                if ( this.records ) {   
                     let recs = [];
-                    for ( let rec of this.records ) {
-    
-                        console.log( 'Rec is ' + JSON.stringify( rec ) );
-    
-                        if ( rec.Plz_type__c === this.selectedValue ) {
-    
+                    for ( let rec of this.records ) {   
+                        if ( rec.Plz_type__c === this.selectedValue ) {  
                             recs.push( rec );
-                    
-                        }
-                        
-                    }
-    
-                    console.log( 'Recs are ' + JSON.stringify( recs ) );
-                    this.records = recs;
-    
+                        }                       
+                    }    
+                    this.records = recs;    
                 }
      
-            }  else {
-    
-                this.records = this.initialRecords;
-    
+            }  else {   
+                this.records = this.initialRecords;    
             }
      
         }  
-    
+        handlePeriodChange( event ) {
+            this.selectedValue = 'All';
+            this.selectedPeriodValue = event.detail.value;
+            fetchMetaDataStatusRecord({period : this.selectedPeriodValue})
+            .then(r => {
+                this.records = r;
+                this.initialRecords = r;
+                this.error = undefined;
+                this.sortedColumn = "Plz_type__c";
+                this.sortRecs();
+            })
+            .catch(error => {
+                this.error = error;
+                this.initialRecords = undefined;
+                this.records = undefined;
+            });    
     }
+}
