@@ -2,7 +2,7 @@ import { Org, SfProject } from "@salesforce/core";
 import { AnyJson } from '@salesforce/ts-types';
 import { SourceTracking } from '@salesforce/source-tracking';
 import { ComponentSet, MetadataResolver } from '@salesforce/source-deploy-retrieve';
-import { FlagsPayload, StatusOutputRow, StatusRowRequest } from "../types";
+import { FlagsPayload, NewOldRecords, StatusOutputRow, StatusRowRequest } from "../types";
 const fs = require("fs")
 const path = require("path")
 
@@ -73,17 +73,47 @@ export default class SyncLib {
     private async saveSync(statusRowList: StatusOutputRow[], saveRecords: boolean): Promise<AnyJson> {
         try {
             const statusRowRequestList = await this.processSyncStatus(statusRowList);
-            //@todo make the records unique
             console.log(statusRowRequestList);
             if(saveRecords){
-                const insertResult = await this.org.getConnection().insert( "Plz_Metadata_Status__c", statusRowRequestList);
-                console.log(insertResult.map(r => r.errors));
+                // const ids: string[] = (await this.org.getConnection().query<StatusRowRequest>(
+                //     `select Id, Plz_type__c, Plz_Status__c, Plz_Path__c, Plz_Name__c 
+                //         from Plz_Metadata_Status__c`
+                // )).records.map(s => s.Id);
+                // this.org.getConnection().destroy('Plz_Metadata_Status__c', ids);
+                const newOldRecords = await this.getNewAndExistingRecords(statusRowRequestList);
+                const insertResult = await this.org.getConnection()
+                    .insert( "Plz_Metadata_Status__c", newOldRecords.newRecords);
+                const updateResult = await this.org.getConnection()
+                    .update( "Plz_Metadata_Status__c", newOldRecords.existingRecord);
+                console.log([...insertResult, ...updateResult].map(r => r.errors));
             }
             return { success: true };
         } catch (error) {
             console.log(`Could not insert your SyncStatus list due to reason: ${error}`);
             return { success: false };
         }
+    }
+
+    private async getNewAndExistingRecords(statusRowList: StatusRowRequest[]): Promise<NewOldRecords>{
+        let newOldRecord: NewOldRecords = {existingRecord: [], newRecords: []};
+        const statusExistingRecords: StatusRowRequest[] = (await this.org.getConnection().query<StatusRowRequest>(
+            `select Id, Plz_type__c, Plz_Status__c, Plz_Path__c, Plz_Name__c 
+                from Plz_Metadata_Status__c`
+        )).records;
+        if(!statusExistingRecords){
+            throw new Error("Could not fetch existing records from Plz_Metadata_Status__c");         
+        }
+        //@ts-ignore: The mismatching between Id optional/required between objects is insured with the filter
+        newOldRecord.existingRecord = statusRowList.filter(status => !!status.Id 
+            && !!statusExistingRecords.find(
+                existingRecord => existingRecord.Plz_Path__c === status.Plz_Path__c
+            )
+        );
+        newOldRecord.newRecords = statusRowList.filter(status => statusExistingRecords.find(
+            existingRecord => existingRecord.Plz_Path__c === status.Plz_Path__c
+        ) === undefined);
+
+        return newOldRecord;
     }
 
     private async processSyncStatus(statusList: StatusOutputRow[]): Promise<StatusRowRequest[]>{
@@ -111,7 +141,7 @@ export default class SyncLib {
                     Plz_Path__c: metadataFile,
                     Plz_type__c: sourceComponent.type.name,
                 })
-            }//todo add else
+            }
         }
         return updatedStatusList;
     }
