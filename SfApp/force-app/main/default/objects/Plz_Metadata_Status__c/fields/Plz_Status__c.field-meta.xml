@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plz_Status__c</fullName>
+    <externalId>false</externalId>
+    <label>Status</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Synchronized</fullName>
+                <default>false</default>
+                <label>Synchronized</label>
+            </value>
+            <value>
+                <fullName>Not Synchronized</fullName>
+                <default>false</default>
+                <label>Not Synchronized</label>
+            </value>
+            <value>
+                <fullName>Not Yet Analyzed</fullName>
+                <default>false</default>
+                <label>Not Analyzed Yet</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
