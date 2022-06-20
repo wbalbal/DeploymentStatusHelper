@@ -1,5 +1,3 @@
-<img src="https://raw.githubusercontent.com/sorenkrabbe/Chrome-Salesforce-inspector/master/addon/icon128.png" align="right">
-
 Salesforce Deployment Status Helper
 ===========================
 
