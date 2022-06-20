@@ -3,17 +3,28 @@
   "description": "Synched or Not Synched Meta Data",
   "version": "1.0",
   "permissions": [
-    "activeTab"
+    "https://*.salesforce.com/*",
+    "https://*.force.com/*",
+    "https://*.cloudforce.com/*",
+    "https://*.visualforce.com/*",
+    "cookies"
   ],
+  "background": {
+    "scripts": [ "background.js" ],
+    "persistent": false
+  },
   "content_scripts": [
     {
-      "matches": ["https://*/*"],
+      "matches": [
+        "https://*.salesforce.com/*",
+        "https://*.visual.force.com/*",
+        "https://*.lightning.force.com/*",
+        "https://*.cloudforce.com/*",
+        "https://*.visualforce.com/*"
+      ],
       "js": ["content.js"],
       "css": ["styles.css"]
     }
   ],
-  "browser_action": {
-    "default_title": "Deployment Status"
-  },
   "manifest_version": 2
 }
