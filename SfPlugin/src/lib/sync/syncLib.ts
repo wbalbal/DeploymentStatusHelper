@@ -118,6 +118,16 @@ export default class SyncLib {
 
     private async processSyncStatus(statusList: StatusOutputRow[]): Promise<StatusRowRequest[]>{
         let updatedStatusList: StatusRowRequest[] = [];
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; 
+        let dd = today.getDate();
+        let ddStr = dd.toString();
+        let mmStr = mm.toString();
+        if (dd < 10) ddStr = '0' + dd;
+        if (mm < 10) mmStr = '0' + mm;
+
+        const formattedToday = yyyy+'-'+mm+'-'+dd;
         const metaDataFiles = await this.getAllMetadataFiles(this.defaultRootMetadataPath);
         const statusListMetaDataFiles = statusList.filter(status => status.filePath)
             .map(status => status.filePath);
@@ -130,6 +140,7 @@ export default class SyncLib {
                     Plz_Name__c: matchingStatus.fullName,
                     Plz_Path__c: matchingStatus.filePath,
                     Plz_type__c: matchingStatus.type,
+                    Plz_Last_Time_Analyzed__c: formattedToday,
                 })
             }else{
                 const resolver = new MetadataResolver();
@@ -140,6 +151,7 @@ export default class SyncLib {
                     Plz_Name__c: sourceComponent.fullName,
                     Plz_Path__c: metadataFile,
                     Plz_type__c: sourceComponent.type.name,
+                    Plz_Last_Time_Analyzed__c: formattedToday,
                 })
             }
         }
