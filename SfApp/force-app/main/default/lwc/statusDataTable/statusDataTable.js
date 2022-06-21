@@ -15,6 +15,7 @@ export default class StatusDataTable extends LightningElement {
         connectedCallback(){
             fetchQueries()
             .then(result => {
+                console.log(' result '+JSON.stringify(result));
                 this.queriesData = result;
                 this.error = undefined;
                 let opts = [{label:'All', value:'All'}];
@@ -48,6 +49,7 @@ export default class StatusDataTable extends LightningElement {
         @wire( fetchMetaDataStatusRecord, {period: '10'})  
         wiredRecords( { error, data } ) {   
             if (data) {
+                console.log(' dataa '+JSON.stringify(data));
                 this.records = data;
                 this.initialRecords = data;
                 this.error = undefined;
@@ -88,9 +90,10 @@ export default class StatusDataTable extends LightningElement {
                 if ( this.records ) {   
                     let recs = [];
                     for ( let rec of this.records ) {   
-                        if ( rec.Plz_type__c === this.selectedValue ) {  
+                        console.log( 'Rec is ' + JSON.stringify( rec ) );
+                            if ( rec.Plz_type__c === this.selectedValue ) {  
                             recs.push( rec );
-                        }                       
+                            }                       
                     }    
                     this.records = recs;    
                 }
