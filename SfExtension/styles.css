@@ -1,25 +1,43 @@
 
 .deployment_helper_parent{
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
 }
 
 .deployment_helper {
     position: absolute;
-    top: 5%;
-    right: 1.5%;
+    display: flex;
     border: none;
     z-index: 10000;
     padding: 4px;
     font-family:"Courier New";
     font-weight: bold;
-
-
+    top: 8px;
+    right: 8px;
+    background-color: #78b037;
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    color :white;
+}
+.deployment_helper_red {
+    position: absolute;
+    display: flex;
+    border: none;
+    z-index: 10000;
+    padding: 4px;
+    font-family:"Courier New";
+    font-weight: bold;
+    top: 8px;
+    right: 8px;
+    background-color: #d54c53;
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    color: white;
 }
 .deployment_helper div {
   display: inline;
     margin-left: 10px;
-    color :#008CBA;
+    
 
 }
 .deployment_helper_button {
@@ -27,6 +45,8 @@
     top: 7%;
     right: 10%;
     z-index: 10000;
+    padding: 0 4px;
+    margin-right: 4px;
 }
 .popup {
     display: none;
@@ -36,6 +56,15 @@
     position: relative;
     display: inline-block;
     border-bottom: 1px dotted black;
+    padding: 0 4px;
+    margin-right: 4px;
+    word-wrap: break-word;
+}
+
+.tooltip:hover {
+    visibility: visible;
+    color:bisque;
+    cursor: pointer;
 }
 
 .tooltip .tooltiptext {
@@ -51,10 +80,16 @@
     z-index: 1;
     top: 30px;
     left: -80%;
+    padding: 4px;
 }
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+.state {
+    display: inline-flex;
+    margin-left: 8px;
 }
 
 

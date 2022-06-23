@@ -5,4 +5,5 @@ export interface StatusRowRequest {
     Plz_Path__c : string,
     Plz_Name__c : string,
     Plz_Last_Time_Analyzed__c : string,
+    origin?: string;
 }

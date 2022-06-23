@@ -5,6 +5,7 @@ import { ComponentSet, MetadataResolver } from '@salesforce/source-deploy-retrie
 import { FlagsPayload, NewOldRecords, StatusOutputRow, StatusRowRequest } from "../types";
 const fs = require("fs")
 const path = require("path")
+const prompt = require("prompt-sync")({ sigint: true });
 
 export default class SyncLib {
 	private org: Org;
@@ -27,7 +28,7 @@ export default class SyncLib {
             local: true,
             remote: true,
         });
-        await this.saveSync(statusList, this.flagsPayload.saveRecords);
+        await this.hundleSync(statusList, this.flagsPayload.saveRecords);
         if(this.flagsPayload.interactive){
             await this.syncMetadata(statusList);
         }
@@ -36,51 +37,56 @@ export default class SyncLib {
 
     private async syncMetadata(statusRowList: StatusOutputRow[]): Promise<AnyJson> {
         for(const status of statusRowList){
-            if(status.origin === "local" && (status.state === "add" || status.state === "modify")){
-                const deployJob = await ComponentSet
-                    .fromSource(status.filePath)
-                    .deploy({ usernameOrConnection: this.org.getUsername() });
+            // if(status.origin === "local" && (status.state === "add" || status.state === "modify")){
+            //     const deployJob = await ComponentSet
+            //         .fromSource(status.filePath)
+            //         .deploy({ usernameOrConnection: this.org.getUsername() });
 
-                const result = await deployJob.pollStatus();
-                console.log(result.getFileResponses());
-            }
-            if(status.origin === "local" && status.state === "delete"){
-                const retrieveJob = await ComponentSet
-                    .fromSource(status.filePath)
-                    .retrieve({
-                        usernameOrConnection: this.org.getUsername(),
-                        output: './force-app',
-                        merge: true
-                    });
-                const result = await retrieveJob.pollStatus();
-                console.log(result.getFileResponses());
-            }
+            //     const result = await deployJob.pollStatus();
+            //     console.log(result.getFileResponses());
+            // }
+            // if(status.origin === "local" && status.state === "delete"){
+            //     const retrieveJob = await ComponentSet
+            //         .fromSource(status.filePath)
+            //         .retrieve({
+            //             usernameOrConnection: this.org.getUsername(),
+            //             output: './force-app',
+            //             merge: true
+            //         });
+            //     const result = await retrieveJob.pollStatus();
+            //     console.log(result.getFileResponses());
+            // }
             if(status.origin === "remote" && (status.state === "add" || status.state === "modify")){
-                const retrieveJob = await ComponentSet
-                    .fromSource(status.filePath)
-                    .retrieve({
-                        usernameOrConnection: this.org.getUsername(),
-                        output: './force-app',
-                        merge: true
-                    });
-                const result = await retrieveJob.pollStatus();
-                console.log(result.getFileResponses());
+                let userConfirmation = prompt(`Metadata ${status.fullName} has been changes or added in you remote org ${this.org.getUsername()}, Would you like to retrieve it to you local? Y(yes), N(no)`);
+                if (userConfirmation.toLowerCase() === 'y'){
+                    const componentSet = new ComponentSet();
+                    componentSet.add({fullName: status.fullName, type: status.type});
+                    const retrieveJob = await componentSet
+                        .retrieve({
+                            usernameOrConnection: this.org.getUsername(),
+                            output: './force-app',
+                            merge: true
+                        });
+                    const result = await retrieveJob.pollStatus();
+                    console.log(result.getFileResponses());
+                }
             }
         }
         return { success: true };
     }
 
-    private async saveSync(statusRowList: StatusOutputRow[], saveRecords: boolean): Promise<AnyJson> {
+    private async hundleSync(statusRowList: StatusOutputRow[], saveRecords: boolean): Promise<AnyJson> {
         try {
             const statusRowRequestList = await this.processSyncStatus(statusRowList);
-            console.log(statusRowRequestList);
+            console.log(statusRowRequestList.filter(status => status.Plz_Status__c === 'Not Synchronized'));
             if(saveRecords){
                 // const ids: string[] = (await this.org.getConnection().query<StatusRowRequest>(
                 //     `select Id, Plz_type__c, Plz_Status__c, Plz_Path__c, Plz_Name__c 
                 //         from Plz_Metadata_Status__c`
                 // )).records.map(s => s.Id);
                 // this.org.getConnection().destroy('Plz_Metadata_Status__c', ids);
-                const newOldRecords = await this.getNewAndExistingRecords(statusRowRequestList);
+                const newOldRecords = await this.prepareRecordsForDatabase(statusRowRequestList);
+                //console.log(newOldRecords.existingRecord.filter(status => status.Plz_Status__c === 'Not Synchronized'));
                 const insertResult = await this.org.getConnection()
                     .insert( "Plz_Metadata_Status__c", newOldRecords.newRecords);
                 const updateResult = await this.org.getConnection()
@@ -94,7 +100,7 @@ export default class SyncLib {
         }
     }
 
-    private async getNewAndExistingRecords(statusRowList: StatusRowRequest[]): Promise<NewOldRecords>{
+    private async prepareRecordsForDatabase(statusRowList: StatusRowRequest[]): Promise<NewOldRecords>{
         let newOldRecord: NewOldRecords = {existingRecord: [], newRecords: []};
         const statusExistingRecords: StatusRowRequest[] = (await this.org.getConnection().query<StatusRowRequest>(
             `select Id, Plz_type__c, Plz_Status__c, Plz_Path__c, Plz_Name__c 
@@ -104,14 +110,22 @@ export default class SyncLib {
             throw new Error("Could not fetch existing records from Plz_Metadata_Status__c");         
         }
         //@ts-ignore: The mismatching between Id optional/required between objects is insured with the filter
-        newOldRecord.existingRecord = statusRowList.filter(status => !!status.Id 
-            && !!statusExistingRecords.find(
+        newOldRecord.existingRecord = statusRowList.filter(status => !!statusExistingRecords.find(
                 existingRecord => existingRecord.Plz_Path__c === status.Plz_Path__c
             )
-        );
+        ).map(record =>({
+            ...record,
+            Id: statusExistingRecords.find(
+                existingRecord => existingRecord.Plz_Path__c === record.Plz_Path__c
+            ).Id,
+            origin: undefined,
+        }));
         newOldRecord.newRecords = statusRowList.filter(status => statusExistingRecords.find(
             existingRecord => existingRecord.Plz_Path__c === status.Plz_Path__c
-        ) === undefined);
+        ) === undefined).map(record =>({
+            ...record,
+            origin: undefined,
+        }));
 
         return newOldRecord;
     }
@@ -132,7 +146,10 @@ export default class SyncLib {
         const statusListMetaDataFiles = statusList.filter(status => status.filePath)
             .map(status => status.filePath);
         const metaDataFilesSet = [...new Set([...metaDataFiles, ...statusListMetaDataFiles])]
-        for(const metadataFile of metaDataFilesSet){
+        for(let metadataFile of metaDataFilesSet){
+            if(!metadataFile.includes('-meta.xml')){
+                metadataFile = metadataFile + '-meta.xml';
+            }
             const matchingStatus = statusList.find(status => status.filePath === metadataFile);
             if(!!matchingStatus){
                 updatedStatusList.push({
@@ -141,6 +158,7 @@ export default class SyncLib {
                     Plz_Path__c: matchingStatus.filePath,
                     Plz_type__c: matchingStatus.type,
                     Plz_Last_Time_Analyzed__c: formattedToday,
+                    origin: `${matchingStatus?.origin} ${matchingStatus?.state}`,
                 })
             }else{
                 const resolver = new MetadataResolver();
@@ -152,6 +170,7 @@ export default class SyncLib {
                     Plz_Path__c: metadataFile,
                     Plz_type__c: sourceComponent.type.name,
                     Plz_Last_Time_Analyzed__c: formattedToday,
+                    origin: `${matchingStatus?.origin} ${matchingStatus?.state}`,
                 })
             }
         }
@@ -167,7 +186,7 @@ export default class SyncLib {
                 arrayOfFiles = await this.getAllMetadataFiles(dirPath + "/" + file, arrayOfFiles);
             } else {
                 if(path.extname(file) === '.xml'){
-                    arrayOfFiles.push(path.join(dirPath, "/", file));
+                    arrayOfFiles.push(path.join(dirPath, "/", file)?.replace('-meta.xml', ''));
                 }
             }
         }
