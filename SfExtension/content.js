@@ -18,7 +18,7 @@ window.onload = async () => {
         sessionId = message.key;
     }
     let xhr = new XMLHttpRequest();
-    url = "/services/data/v35.0/query/?q=" + encodeURIComponent("select Id, Plz_type__c, Plz_Status__c, Plz_Path__c, Plz_Name__c from Plz_Metadata_Status__c");
+    url = "/services/data/v35.0/query/?q=" + encodeURIComponent("select Id, Plz_type__c, Plz_Status__c, Plz_Path__c, Plz_Name__c, Plz_Last_Time_Analyzed__c from Plz_Metadata_Status__c");
     url += (url.includes("?") ? "&" : "?") + "cache=" + Math.random();
     xhr.open(method, "https://" + instanceHostname + url, true);
 
@@ -30,10 +30,14 @@ window.onload = async () => {
             let metadataStatusList = JSON.parse(xhr.responseText)?.records;
             console.log(metadataStatusList);
             setTimeout(() => {
-                for( let element of metadataStatusList ){
-                    //let componentName = 'c-' + element.componentName;
-                    let componentName = element.Plz_Name__c;
-                    let componentItem = document.querySelectorAll(componentName);
+                for(let element of metadataStatusList){
+                    const componentName = 'c_' + element.Plz_Name__c;
+                    let componentItem = '';
+                    try {
+                        componentItem = document.querySelectorAll(`div[data-component-id=${componentName}`);
+                    } catch (error) {
+                        continue;
+                    }
                     for( let componentItemsItem of componentItem ){
         
                         //Create HTML elements to inject
@@ -51,14 +55,20 @@ window.onload = async () => {
                         InsertedPathButton.innerText="CMP_PATH";
                         InsertedButton.classList.add("tooltip");
                         InsertedPathButton.classList.add("tooltip");
-                        InsertedDivContainer.classList.add("deployment_helper");
+                        InsertedDiv.classList.add("state");
+                        if(element.Plz_Status__c === 'Not Synchronized'){
+                            InsertedDivContainer.classList.add("deployment_helper_red");
+                        }else{
+                            InsertedDivContainer.classList.add("deployment_helper");
+                        }
                         componentItemsItem.classList.add("deployment_helper_parent");
                         divPopupForPath.classList.add("tooltiptext");
                         divPopup.classList.add("tooltiptext");
         
                         //Set elements content
                         InsertedDiv.innerText=element.Plz_Status__c;
-                        InsertedDivForLastSyncDate.innerText= "";
+                        InsertedDivForLastSyncDate.classList.add("state");
+                        InsertedDivForLastSyncDate.innerText= element.Plz_Last_Time_Analyzed__c;
                         divPopupForPath.innerText=element.Plz_Path__c;
                         divPopup.innerText= "To be implemented next Release !!!!!!!!";
         
