@@ -5,7 +5,7 @@ Salesforce Deployment Status Helper
 Installation
 ------------
 
-| [:sunny: Add to Chrome](https://chrome.google.com/webstore/detail/salesforce-inspector/aodjmnfhjibkcdimpodiifdjnnncaafh) | [:sunny: Add to Firefox](https://addons.mozilla.org/firefox/addon/salesforce-inspector/) |
+| [:sunny: Add to Chrome](https://github.com/wbalbal/DeploymentStatusHelper) | [:sunny: Add to Firefox](https://github.com/wbalbal/DeploymentStatusHelper) |
 | --- | --- |
 
 1. Open `chrome://extensions/`.
