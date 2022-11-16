@@ -162,16 +162,18 @@ export default class SyncLib {
                 })
             }else{
                 const resolver = new MetadataResolver();
-                const metadata = resolver.getComponentsFromPath(metadataFile);
-                const sourceComponent =  metadata.pop();
-                updatedStatusList.push({
-                    Plz_Status__c: 'Synchronized',
-                    Plz_Name__c: sourceComponent.fullName,
-                    Plz_Path__c: metadataFile,
-                    Plz_type__c: sourceComponent.type.name,
-                    Plz_Last_Time_Analyzed__c: formattedToday,
-                    origin: `${matchingStatus?.origin} ${matchingStatus?.state}`,
-                })
+                try {
+                    const metadata = resolver.getComponentsFromPath(metadataFile);
+                    const sourceComponent =  metadata.pop();
+                    updatedStatusList.push({
+                        Plz_Status__c: 'Synchronized',
+                        Plz_Name__c: sourceComponent.fullName,
+                        Plz_Path__c: metadataFile,
+                        Plz_type__c: sourceComponent.type.name,
+                        Plz_Last_Time_Analyzed__c: formattedToday,
+                        origin: `${matchingStatus?.origin} ${matchingStatus?.state}`,
+                    })
+                } catch (error) {}
             }
         }
         return updatedStatusList;
