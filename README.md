@@ -37,7 +37,7 @@ Plz plugin will show you the differences, if any are found, between local and re
 **Synchronised** means the local metadata is the same as the remote org status.
 **Synchronise** means either deploy or retrieve.*
 
-![plz_status_principle](/img/PLZ_status_general_process.png)
+![plz_status_principle](/img/PLZ_General_Process.png)
 
   
 
