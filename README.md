@@ -30,7 +30,7 @@ sfdx plz:status -u DemoOrg -o
 
 Your local sfdx code or a git repository can diverge anytime from the org metadata. This plugin will help get the status of what is not **synchronised**  **\***. 
 
-Plz plugin will show you the differences, if any are found, between local and remote org metadata, then generate the packages required to deploy/retrieve the metadata required to a matching local/org state. 🥳
+Plz plugin will show you the differences, if any are found, between local (force-app/main/default) and remote org metadata, then generate the packages required to deploy/retrieve the metadata required to have a matching local/org state. 🥳
 
 ***\*** The word **synchronised** will be used everywhere in the documentation and logs of the plugin.
 
@@ -61,7 +61,7 @@ sfdx plz:status -u DemoOrg -o
  And there you have it. A happy collaborating team  🍻
 
 **Be careful:**
-🤓You will need to manually review the generated package xml file to make sure that it is exactly with what you want to synchronize 🤓
+🤓You will need to manually review the generated package xml file to make sure that it is exactly what you want to synchronize 🤓
 
 
 
