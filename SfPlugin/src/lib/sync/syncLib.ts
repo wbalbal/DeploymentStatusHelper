@@ -2,10 +2,12 @@ import { Org, SfProject } from "@salesforce/core";
 import { AnyJson } from '@salesforce/ts-types';
 import { SourceTracking } from '@salesforce/source-tracking';
 import { ComponentSet, MetadataResolver } from '@salesforce/source-deploy-retrieve';
-import { FlagsPayload, NewOldRecords, StatusOutputRow, StatusRowRequest } from "../types";
+import { FlagsPayload, NewOldRecords, SingleTypeLog, StatusOutputRow, StatusRowRequest } from "../types";
 const fs = require("fs")
 const path = require("path")
+import { promisify } from 'util';
 const prompt = require("prompt-sync")({ sigint: true });
+const writeFile = promisify(fs.writeFile);
 
 export default class SyncLib {
 	private org: Org;
@@ -29,7 +31,7 @@ export default class SyncLib {
             remote: true,
         });
         await this.hundleSync(statusList, this.flagsPayload.saveRecords);
-        if(this.flagsPayload.interactive){
+        if(this.flagsPayload.interactive && false){ //keep it to next release
             await this.syncMetadata(statusList);
         }
         return { success: true };
@@ -68,7 +70,7 @@ export default class SyncLib {
                             merge: true
                         });
                     const result = await retrieveJob.pollStatus();
-                    console.log(result.getFileResponses());
+                    //console.log(result.getFileResponses());
                 }
             }
         }
@@ -78,8 +80,53 @@ export default class SyncLib {
     private async hundleSync(statusRowList: StatusOutputRow[], saveRecords: boolean): Promise<AnyJson> {
         try {
             const statusRowRequestList = await this.processSyncStatus(statusRowList);
-            console.log(statusRowRequestList.filter(status => status.Plz_Status__c === 'Not Synchronized'));
-            if(saveRecords){
+            const statusListByOrigin = await this.groupByKey(statusRowRequestList, 'origin');
+            
+            const localAddChanges: SingleTypeLog[] = await this.getStatusListByOrigin(statusListByOrigin, 'local add');
+            const localModifyChanges = await this.getStatusListByOrigin(statusListByOrigin, 'local modify');
+            const localDeleteChanges = await this.getStatusListByOrigin(statusListByOrigin, 'local delete');
+            const remoteAddChanges = await this.getStatusListByOrigin(statusListByOrigin, 'remote add');
+            const remoteDeleteChanges = await this.getStatusListByOrigin(statusListByOrigin, 'remote delete');
+            const remoteModifyChanges = await this.getStatusListByOrigin(statusListByOrigin, 'remote modify');
+            
+            if (!fs.existsSync('./deployChanges')){
+                fs.mkdirSync('./deployChanges', { recursive: true });
+            }
+            if (!fs.existsSync('./retrieveChanges')){
+                fs.mkdirSync('./retrieveChanges', { recursive: true });
+            }
+            
+            const localAddComponentSet = new ComponentSet();
+            for(const component of [...localModifyChanges, ...localAddChanges]){
+                localAddComponentSet.add({fullName: component.name, type: component.type});
+            }
+            const localAddPackageXML = await localAddComponentSet.getPackageXml(4);
+            await writeFile(`./deployChanges/package.xml`, localAddPackageXML, { encoding: 'utf8' });
+
+            const localDeleteComponentSet = new ComponentSet();
+            for(let component of localDeleteChanges){
+                localDeleteComponentSet.add({fullName: component.name, type: component.type});
+            }
+            const localModifyPackageXML = await localDeleteComponentSet.getPackageXml(4);
+            await writeFile(`./deployChanges/destructiveChanges.xml`, localModifyPackageXML, { encoding: 'utf8' });
+
+            const remoteAddComponentSet = new ComponentSet();
+            for(let component of [...remoteModifyChanges, ...remoteAddChanges]){
+                remoteAddComponentSet.add({fullName: component.name, type: component.type});
+            }
+            const remoteAddPackageXML = await remoteAddComponentSet.getPackageXml(4);
+            await writeFile(`./retrieveChanges/package.xml`, remoteAddPackageXML, { encoding: 'utf8' });
+
+            const remoteDeleteComponentSet = new ComponentSet();
+            for(let component of remoteDeleteChanges){
+                remoteDeleteComponentSet.add({fullName: component.name, type: component.type});
+            }
+            const remoteModifyPackageXML = await remoteDeleteComponentSet.getPackageXml(4);
+            await writeFile(`./retrieveChanges/destructiveChanges.xml`, remoteModifyPackageXML, { encoding: 'utf8' });
+
+
+            
+            if(saveRecords && false){ // keep it for the next release
                 // const ids: string[] = (await this.org.getConnection().query<StatusRowRequest>(
                 //     `select Id, Plz_type__c, Plz_Status__c, Plz_Path__c, Plz_Name__c 
                 //         from Plz_Metadata_Status__c`
@@ -95,10 +142,32 @@ export default class SyncLib {
             }
             return { success: true };
         } catch (error) {
-            console.log(`Could not insert your SyncStatus list due to reason: ${error}`);
+            //console.log(`Could not insert your SyncStatus list due to reason: ${error}`);
             return { success: false };
         }
     }
+
+    private async getStatusListByOrigin(statusList, origin){
+        if(statusList[origin]){
+            const formattedList = statusList[origin].map(status => ({
+                    type: status.Plz_type__c,
+                    name: status.Plz_Name__c,
+                    filepath: status.Plz_Path__c,
+                }
+            ));
+            console.log(`${origin} diff:`);
+            console.log(formattedList);
+        }
+        return [];
+    }
+
+    private async groupByKey(array, key) {
+        return array
+          .reduce((hash, obj) => {
+            if(obj[key] === undefined) return hash; 
+            return Object.assign(hash, { [obj[key]]:( hash[obj[key]] || [] ).concat(obj)})
+          }, {})
+     }
 
     private async prepareRecordsForDatabase(statusRowList: StatusRowRequest[]): Promise<NewOldRecords>{
         let newOldRecord: NewOldRecords = {existingRecord: [], newRecords: []};
@@ -197,3 +266,4 @@ export default class SyncLib {
     }
 
 }
+
