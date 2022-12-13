@@ -1,18 +1,37 @@
 {
-  "orgName": "wbalbal company",
+  "orgName": "plz Status Helper - Dev Org",
   "edition": "Developer",
-  "features": [],
+  "features": [
+    "EnableSetPasswordInApi"
+  ],
   "settings": {
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true
     },
+    "enhancedNotesSettings": {
+      "enableEnhancedNotes": true
+    },
+    "quoteSettings": {
+      "enableQuote": true
+    },
+    "chatterSettings": {
+      "enableChatter": true
+    },
+    "userManagementSettings": {
+      "enableNewProfileUI": true
+    },
     "securitySettings": {
-      "passwordPolicies": {
-        "enableSetPasswordInApi": true
-      }
+      "enableAdminLoginAsAnyUser": true
     },
     "mobileSettings": {
       "enableS1EncryptedStoragePref2": false
+    },
+    "fieldServiceSettings": {
+      "fieldServiceOrgPref": true
+    },
+    "communitiesSettings": {
+      "enableNetworksEnabled": true,
+      "enableEnablePRM": true
     }
   }
 }
